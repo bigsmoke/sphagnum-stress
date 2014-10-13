@@ -405,81 +405,19 @@ test_abs$C_xc <- (1000 * A470 - 1.82 * C_a - 85.02 * C_b) / 198
 \subsubsection{Pre-treatment chlorophyll content}
 
 <<>>=
-abs <- read.table( textConnection("
-Repl    Cont    Site    Dabbed
-A       1       a       0.386
-A       1       b       0.219
-A       1       c       0.249
-A       2       a       0.223
-A       2       b       0.320
-A       2       c       0.390
-A       3       a       0.263   
-A       3       b       0.226
-A       3       c       0.198
-A       4       a       0.309
-A       4       b       0.308
-A       4       c       0.429
-A       5       a       0.513
-A       5       b       0.268
-A       5       c       0.343
-A       6       a       0.221
-A       6       b       0.231
-A       6       c       0.196
-A       7       a       0.262
-A       7       b       0.208
-A       7       c       0.262
-A       8       a       0.356
-A       8       b       0.253
-A       8       c       0.276
-B       1       a       0.185
-B       1       b       0.244
-B       1       c       0.324
-B       2       a       0.448
-B       2       b       0.287
-B       2       c       0.282
-B       3       a       0.252
-B       3       b       0.257
-B       3       c       0.211
-B       4       a       0.239
-B       4       b       0.211
-B       4       c       0.310
-B       5       a       0.249
-B       5       b       0.264
-B       5       c       0.237
-B       6       a       0.286
-B       6       b       0.311
-B       6       c       0.322
-B       7       a       0.283
-B       7       b       0.362
-B       7       c       0.334
-B       8       a       0.361
-B       8       b       0.337
-B       8       c       0.260
-C       1       a       0.367
-C       1       b       0.204
-C       1       c       0.262
-C       2       a       0.267
-C       2       b       0.208
-C       2       c       0.267
-C       3       a       0.204
-C       3       b       0.220
-C       3       c       0.221
-C       4       a       0.220
-C       4       b       0.246
-C       4       c       0.249
-C       5       a       0.279
-C       5       b       0.217
-C       5       c       0.181
-C       6       a       0.209
-C       6       b       0.204
-C       6       c       0.223
-C       7       a       0.260
-C       7       b       0.261
-C       7       c       0.204
-C       8       a       0.508
-C       8       b       0.280
-C       8       c       0.255
-"), header=TRUE)
+abs_okt04 <- read.table("chlorophyll-content-20141004.txt", header=TRUE)
+
+# Calculate Chlorophyll a content (in ug/g)
+aceton_mL <- 2
+abs_okt04$Chl_a <- with(abs_okt04, ((12.25*A663)-(2.79*A646)) * aceton_mL / Dabbed)
+abs_okt04$Chl_b <- with(abs_okt04, ((21.50*A646)-(5.10*A663)) * aceton_mL / Dabbed)
+abs_okt04$Chl_a_plus_b <- with(abs_okt04, ((7.15*A663)+(18.71*A646)) * aceton_mL / Dabbed)
+abs_okt04$Chl_a_over_b <- with(abs_okt04, Chl_a / Chl_b)
+abs_okt04$Car_x_c <- with(abs_okt04, ((1000*A470)-(1.82*Chl_a)-(85.02*Chl_b)) / 198 * aceton_mL / Dabbed)
+
+attach(abs_okt04)
+
+plot(Chl_a ~ Cont)
 @
 
 \subsection{Chlorophyll fluorescence}
