@@ -1,0 +1,610 @@
+\PassOptionsToPackage{final}{graphicx}
+
+\documentclass[12pt,a4paper,draft]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage[bookmarks,draft=false]{hyperref}
+\usepackage{amsmath}
+\usepackage{chemfig}
+\usepackage[nomargin,inline]{fixme}
+\usepackage{natbib}
+\usepackage{float}
+\usepackage{ulem}
+
+
+\makeatletter
+\renewcommand*\FXLayoutInline[3]{%
+  {\@fxuseface{inline}\ignorespaces[#2]}}
+\makeatother
+
+\title{Notes on {\it Sphagnum} stress experiment}
+\author{Rowan R. van der Molen}
+\date{}
+
+\begin{document}
+
+\maketitle
+ 
+\tableofcontents 
+  
+\section{\textit{Sphagnum}}
+
+\subsection{\textit{Sphagnum} anatomy}
+
+
+\section{Materials and methods}
+
+\subsection{Biological material}
+
+\textit{Sphagnum magellanicum} was collected from the Dwingelderveld area (Drenthe, the Netherlands), where eight plastic rectangle containers ($l=60 \times w=10 \times h=15$cm) were filled by cutting out patches of the peat moss with a bread knife. The patches were selected for maximum species homogeneity.
+
+\fxnote{Insert GPS coordinates}
+
+\subsection{Set-up in the green house}
+
+The eight containers ($60 \times 10 \times 15cm$) were brought into the University of Groningen (RuG) green house, filled to capacity with demi-water and kept overnight until the next day (June 24), when an artificial rainwater feed was started at a rate of roughly 5L/day, after \citet{lanting2010}.
+
+<<>>=
+acclimatization_start <- as.Date("2014-06-24")
+@
+
+The light period in the green house is 12 hours, from 7am--7pm. The temp. is kept between 18-22°C.
+\fxnote{Measure light intensity in the green house.}
+
+The containers were divided virtually in 3 parts: a, b, and c. Part a was the third closest to the the nutrient input. 
+
+\subsection{Capitula weight determination}
+
+<<capitula_weight_boxplot, echo=2, fig.cap="The weight range of the fresh and dried capitula of \\textit{Sphagnum magellanicum}.", fig.height=6, fig.pos="htb">>=
+
+capitula_weighing <- as.Date("2014-09-19")
+capitula_weighing_week <- floor((capitula_weighing - acclimatization_start) / 7)
+
+capitula <- read.table( textConnection("
+fresh_weight_g dry_weight_g
+0.292   0.0103
+0.547   0.0174
+0.752   0.0264
+0.106   0.0058
+0.683   0.0303
+0.265   0.0125
+0.459   0.0185
+0.591   0.0324
+0.269   0.0096
+0.537   0.0265
+0.452   0.0176
+0.272   0.0087
+0.208   0.0074
+0.222   0.0130
+0.276   0.0103
+0.318   0.0125
+0.082   0.0049
+0.413   0.0144
+0.533   0.0231
+0.400   0.0186
+"), header=TRUE )
+
+capitula_arne <- read.table( textConnection("
+fresh_weight_g  fresh_dabbed_g
+0.336	0.205
+0.184	0.106
+0.189	0.08
+0.088	0.043
+0.127	0.073
+0.088	0.055
+0.172	0.097
+0.226	0.124
+0.076	0.043
+0.14	0.086
+0.153	0.086
+0.139	0.073
+0.098	0.054
+0.091	0.056
+0.063	0.034
+0.128	0.065
+"), header=TRUE )
+
+fresh_weights <- c(capitula$fresh_weight_g, capitula_arne$fresh_weight_g, capitula_arne$fresh_dabbed_g)
+fresh_labels <- c( rep("'14 wet", nrow(capitula)), rep(c("'09 wet", "'09 dabbed"), each=nrow(capitula_arne)) )
+
+layout( matrix(c(1,2), nrow=1), widths=c(2,1) )
+boxplot(fresh_weights~fresh_labels, main="Fresh capitula", ylab="Fresh weight (g)")
+boxplot(capitula$dry_weight_g, main="Dried capitula", ylab="Dry weight (g)")
+@
+
+<<capitula_weight_rel, echo=FALSE, fig.cap="The relationship between the dry and the fresh weight of \\textit{Sphagnum magellanicum} capitula", fig.height=6, fig.pos="htb">>=
+
+par(mar=c(5, 4, 4, 4)+0.3)
+plot(capitula$dry_weight_g~capitula$fresh_weight_g, xlab="Fresh weight (g)", ylab="Dry weight (g)", pch=0 )
+
+capitula_dry_m <- lm(capitula$dry_weight_g~capitula$fresh_weight_g, data=capitula)
+abline(capitula_dry_m, lty=2)
+capitula_dry_weight_frac <- summary(capitula_dry_m)$coefficients[2,1]
+
+# Arne's stuff below
+#
+capitula_wet_m <- lm(capitula_arne$fresh_dabbed_g~capitula_arne$fresh_weight_g)
+capitula_dab_frac <- summary(capitula_wet_m)$coefficients[2,1]
+
+par(new=TRUE)
+plot(capitula_arne$fresh_dabbed_g~capitula_arne$fresh_weight_g, pch=15, axes=FALSE, bty="n", xlab="", ylab="")
+axis(side=4, at=pretty( range(capitula_arne$fresh_dabbed_g) ) )
+mtext("Fresh weight, dabbed (g)", side=4, line=3)
+
+abline(capitula_wet_m, lty=1)
+@
+
+In week \Sexpr{capitula_weighing_week} of the experiment, during acclimitization, 20 random \textit{Sphagnum magellanicum} capitula from different containers were sampled to determine their mean weight (figure \ref{fig:capitula_weight_boxplot} and \ref{fig:capitula_weight_rel}). The mean fresh weight of is $\Sexpr{mean(capitula$fresh_weight_g)} \pm \Sexpr{sd(capitula$fresh_weight_g)} \mathrm{g}$, whereas the mean dry weight is $\Sexpr{mean(capitula$dry_weight_g)} \,\pm\, \Sexpr{sd(capitula$dry_weight_g)} \mathrm{g}$ ($\Sexpr{capitula_dry_weight_frac} \times (= \Sexpr{capitula_dry_weight_frac*100}\%)$ of the fresh weight).
+
+The purpose of this was to be able to calculate the number of capitula that would need to be harvested to satisfy the experimental protocols for the chlorophyll a/b determination (section \ref{sec:chlorophyll}) and the C/N determination (section \ref{sec:c/n}).  
+
+It turned out that Lanting had done something similar in 2009, except that he compared the wet fresh weight with the fresh weight after slightly dabbing. His 2009 mean wet weight (before dabbing), $\Sexpr{mean(capitula_arne$fresh_weight_g)} \,\pm\, \Sexpr{sd(capitula_arne$fresh_weight_g)}$,
+was less than half of the 2014 values.
+He calculated on the basis of the mean fresh weight after dabbing ($\Sexpr{mean(capitula_arne$fresh_dabbed_g)} \pm \Sexpr{sd(capitula_arne$fresh_dabbed_g)}$)
+that he needed \Sexpr{1 / mean(capitula_arne$fresh_dabbed_g)} capitula for 1g of dabbed fresh material (\Sexpr{1 / capitula_dab_frac}g undabbed; because $y/x$ = \Sexpr{capitula_dab_frac}).
+
+<<>>=
+capitula_weighing_arne <- as.Date("2009-04-27")
+@
+
+\subsection{Nutrient solution and treatments}
+\label{sec:nutrients}
+
+Acclimatization started on June 24 by setting up a peristaltic pump to feed the eight containers from four barrels, each with an identical nutrient solution dubbed ``artificial rainwater'' by \citet{smolders2001}.
+
+\citet{lanting2010} maintained a two week acclimatizing period with only the nutrient solution. For his experiment, he used two treatments + one control, all in triplicate.
+
+For the 2014 experiment, three different treatments plus a control are used, all in duplo:
+
+\begin{enumerate}
+\item ``artificial rainwater'' (control), after \citet{smolders2001};
+\item ``artificial rainwater'' + bicarbonate (the new treatment);
+\item ``artificial rainwater'' + bicarbonate + calcium, after \citet{lamers1999}; and
+\item ``artificial rainwater'' + calcium
+\end{enumerate}
+
+For the calcium treatment, \chemfig{CaCl2} and \chemfig{NaCl} were diluted in the artificial rainwater solution \citep[app.~2]{smolders2001, lanting2010} to a concentration of 1500uM for both. The Calcium + Bicarbonate treatment contained \chemfig{CaCl2} and \chemfig{NaHCO3} (both 1500 uM) dissolved in the nutrient solution after \citet[app.~2]{lamers1999, lanting2010}. The calcium treatment included NaCl to control for the \chemfig{Na} in \chemfig{NaHCO3}. The concentrations were based on the concentrations measured in Tierra del Fuego \citep[fig.~3]{lanting2010}. The control was fed with only the nutrient solution \citep[app.~2]{lanting2010}.
+
+According to Lanting's fluorescence spectrometry results, the maximum quantum yield of photosystem II ($F_v/F_m$) was not significantly affected by the calcium treatment unless bicarbonate was also added \citep[fig.~19]{lanting2010}. To control for the possibility that this effect had nothing to do with \chemfig{CaCl2} in this treatment, the 2014 experiment included an additional treatment with just bicarbonate (\chemfig{NaHCO3}).
+
+All four `treatments' are in duplo.
+
+\subsubsection{Pump and flow rate}
+
+Peristaltic pump ...
+
+<<>>=
+annual_precipation = 750 / 10 # mm to cm
+annual_precipation_in_cm3 = annual_precipation * 60 * 10
+(annual_precipation_in_l = annual_precipation_in_cm3 / 1000)
+(daily_precipation = annual_precipation_in_l / 360)
+@
+
+Arne's flow rate of 5L/day sums to a much higher amount of annual precipation than $\Sexpr{annual_precipation_in_l}$L/year  of \citet{smolders2001}. \fxnote{How did Arne figure out the flow rate?}
+
+\paragraph{Sep 28 flow rate measurements}
+
+<<fig.height=4, fig.align="center">>=
+
+# Sep 28, 2014
+flow_data <- read.table( textConnection("
+Pump    Tube    Cil_Full    Cil_Empty   Tube_Len1   Tube_Len2
+1       1       255.73      172.61      368.0       283.7
+1       2       205.88      121.38      324.2       284.4
+1       3       173.00      89.05       337.6       309.5
+1       4       171.24      84.52       359.4       282.1
+2       1       257.74      173.88      358.2       308.6
+2       2       209.62      122.39      362.7       273.2
+2       3       172.79      90.00       362.4       302.8
+2       4       176.07      84.65       378.1       346.9
+"), header=TRUE)
+
+# Calculate the contents of the cilinders after 30min
+flow_data$Cil_Content <- with(flow_data, Cil_Full - Cil_Empty)
+flow_data$L_per_day <- flow_data$Cil_Content*48/1000
+flow_data$Tube_Len <- with(flow_data, Tube_Len1 + Tube_Len2)
+flow_data$Cil_D <- rep(c(5.9, 5.1, 4.2, 3.7), 2)
+flow_data$Cil_Area <- 2*pi*(flow_data$Cil_D/2)^2
+
+attach(flow_data)
+
+boxplot(L_per_day~Pump, horizontal=TRUE, main="Before recalibration", xlab="Flow rate (L / day)", ylab=NULL)
+
+plot(L_per_day~Cil_Area, pch=rep(c(0, 15), each=4))
+text(L_per_day~Cil_Area, labels=Tube, pos=4)
+
+# Okt 06, 2014
+flow_data2 <- read.table( textConnection("
+Pump    Tube    Cil_Full    Cil_Empty
+1       1       358.85      256.56
+1       2       276.16      172.61
+1       3       224.42      121.38
+1       4       195.50      89.16
+2       1       358.62      257.23
+2       2       278.67      173.36
+2       3       225.84      121.98
+2       4       195.55      89.49
+"), header=TRUE)
+flow_data2$Cil_Content <- with(flow_data2, Cil_Full - Cil_Empty)
+flow_data2$L_per_day <- flow_data2$Cil_Content*48/1000
+flow_data2$Cil_D <- rep(c(5.9, 6.6, 5.1, 4.2), 2)
+flow_data2$Cil_Area <- 2*pi*(flow_data2$Cil_D/2)^2
+
+detach(flow_data); attach(flow_data2)
+
+boxplot(L_per_day~Pump, horizontal=TRUE, main="After recalibration", xlab="Flow rate (L / day)", ylab=NULL)
+
+plot(L_per_day~Cil_Area, pch=rep(c(0, 15), each=4))
+text(L_per_day~Cil_Area, labels=Tube, pos=4)
+@
+
+These measurements made obvious that I needed to recalibrate the flow rate to achieve 5L/day. Also, I confirmed (but don't show the results here) that there's no relation between tube length and flow rate (despite the great care that Arne took to ensure equal tube lengths).
+
+<<>>=
+(pump1_L_per_day <- mean( L_per_day[ which(Pump==1) ] ))
+(pump2_L_per_day <- mean( L_per_day[ which(Pump==2) ] ))
+
+L_per_day <- 5  # 5L/day is the expected flow rate
+#mL_per_day <- L_per_day / 0.001  # Milileter conversion
+
+# How many L are we really pumping for every expected L?
+pump1_L_per_day / L_per_day
+pump2_L_per_day / L_per_day
+@
+
+\subsubsection{Artificial rainwater pH in barrels}
+
+The pH of the artificial rainwater rises over time, contrary to my expectation that it would lower due to the dissolution of \chemfig{CO_2} from the air.
+\fxnote{Why is the pH in the barrels rising, despite exposure to CO2 from the air?}
+
+\subsection{Water sampling}
+
+Every week, water was sampled from part a, b, and c in each container using soil moister samplers (Rhizon SMS-10 cm Eijkelkamp Agrisearch Equipment; Braun Omnifix 20ml Luer Lock Solo). After measuring the water's pH with a standard pH meter, the water samples (20ml) were kept for ICP emission spectrometry.
+\fxnote{How were the water samples kept? I'm guessing at -20.}
+
+Also sample the water in the barrels.
+
+\subsection{Cation determination}
+
+For the determination of intra and extra cellular cation concentrations, 4 [?] capitula were randomly selected from each part (a, b, c) in each container. 
+A method similar to Hájek and Adamec (2009) was used to seperate the cations present in the cell wall and in the cell. First, capitula were washed with demi-water and slightly dried using filter paper. Then, the capitula were submerged into 40 mL of 20mM hydrochloric acid and shaken for 90 seconds (after Clymo 1963; Brehm 1968; Büscher et al. 2990).
+
+The hydrochloric acid (containing only the exchangeable cations) was measured and analyzed using ICP emission spectrometry. The treated capitula were destructed and also analysed using ICP spectrometry.
+
+For his 2009 experiment, Arne performed all the cation measurements at Radbout University (RA) in Nijmegen, the Netherlands, with the help of Christian Fritz (\href{mailto:C.Fritz@science.ru.nl}{C.Fritz@science.ru.nl}).
+
+Because Christian is away until the end of September (2014), Theo Elzenga is trying to arrange access through Ab Grootjans.
+
+\paragraph{Protocol for determining cell wall bound calcium:} following \citet{hajek2009} for the most part
+
+\begin{itemize}
+\item 2g fresh capitula
+\item demi-water
+\item HCl (20mM)
+\end{itemize}
+
+\hline
+
+\begin{enumerate}
+\item Pick 15 avg. sized capitula from site a (=1.2g N=15).
+\item Wash 5min in demi-water.
+\item Dab, weigh and insert in pot.
+\item Add 40mL 20mM HCl.
+% Verified the 40mL with Arne's data sheets; it confused me,
+% because the water sample for ICP is only 20mL.
+\item Shake for 90s.
+\item Filter with cloth (MiraFilm, from drawer in room 5173.0260) in funnel in erlemeyer.
+\item HCl back in pot voor ICP.
+\item Wash capitula with demi.
+\item Dry capitula.
+\item Grind capitula and put in put in pot for destruction.
+\end{enumerate}
+
+
+
+\subsection{C/N content}
+\label{sec:c/n}
+
+The C/N ratios determined during the 2009 experiment revealed that there were no changes over time or between treatments. Thus, no need was seen to repeat these measurements for the 2014 experiment.
+
+Otherwise, to determine the ratio, a C/N analyser (DUMA technique) would have been used, perhaps in combination with NIR. The latter is non-destructive, whereas the former destroys the sample.
+
+This technique requires 5mg (between 4.95 and 5.00mg) of dried plant material for each sample, times two because Nelly (n.d.eck@rug.nl) always does every sample in duplo; $2 \times 5\mathrm{mg} = (2 \times 0.005) / \Sexpr{mean(capitula[['dry_weight_g']])} = \Sexpr{2 * 0.005 / mean(capitula[['dry_weight_g']])}$ capitula. 
+
+As soon as enough DUMA measurements would have been performed to generate a calibration curve, NIR could have also been used, with the advantage that it is non-destructive
+
+Capitula were sampled at sample site a of each container.
+
+(See \citet[p.~15,16]{lanting2010} for further details.)
+
+\paragraph{Protocol for C/N determination:}
+
+\begin{itemize}
+\item 16 capitula (randomly picked from site a)
+\item 8 pots or tubes to store the dried capitula
+\end{itemize}
+
+\hline
+
+\begin{enumerate}
+\item Pick 2 random (approx. average-sized) capitula from site a in each container.
+\item Dry capitula at 70°C for at least 24h.
+\item Put dried capitula in tubes.
+\end{enumerate}
+
+\subsection{N in medium}
+
+At the end of the experiment, Arne measured the [N] (estimated from measured \chemfig{NO_3^{-}} + \chemfig{NH_4^+}) in the media. He found that both in the control and the treatments the amount of N was low in comparison to the input (see Section \ref{sec:nutrients}).
+
+\subsection{Chlorophyll content}
+\label{sec:chlorophyll}
+
+The 2009 data \citep[p.~17, fig.~16/17]{lanting2010} show a significant difference in chlorophyll a and b over time, but not between the treatments and the control. Part of the change over time is an initial increase followed by a decrease, which reeks of an acclimatization artifact.
+
+Chlorophyll a ($C_a$) absorbs primarily at $\lambda=650$nm (in the long red wavelengths). It also absorbs well at $\lambda=450$nm. Chlorophyll b ($C_b$) absorbs blue light at $\lambda=470$nm but also at 430 and 640nm.
+
+Both chlorophyll a and b reflect green light.
+
+Both $C_a:C_b$ and $C_a+C_b$ are known to vary with shading \citep{dale1992}.
+
+\citet{lanting2010} cites \citet{lichtenthaler1987} for the calculation of chlorophyll content from the spectrophotometer measurements of the destroyed capitula in their solvent.
+
+Arne collected the capitula for the determination of the chlorophyll a/b  concentrations \emph{only at site a} \citep[fig.~16,17]{lanting2010}. He does not report the caretenoid content.
+
+Arne found no significant difference between the treatments and control, and suggested that this could be due to flowering algae in the containers \citep{lanting2010}. \fxnote{What can I do to get rid of the algae in my measurements?} Arne's figures do show a significant differecnce in chlorophyll a/b over time. What is remarkable here is that his figures show an initial increase, which I suspect could be due to an acclimatization effect.
+
+Theo has great doubts about the usefulness of Arne's chlorophyll measurements. He thinks it would be more useful to define these values against the dry weight, by sampling double of what you need and drying half of it. Perhaps, then, it would be sufficient to only do these measurements at the beginning and the end of the experiment.
+
+\paragraph{Protocol for determining chlorophyll a/b content:}
+
+\begin{enumerate}
+\item Pick 3 random capitula from site a in each container. (The measurements will be done in triplicate to compensate for intercapitula variation.)
+\item Put 0.2g capitula ($\approx$ \Sexpr{ceiling(0.2 / (mean(capitula[['fresh_weight_g']]) * capitula_dab_frac))} capitula, fresh weight, after dabbing with filter paper) into glass tube. A tube size of 18ml works well.
+\item Add liquid nitrogen (\chemfig{N_2}) to tube.
+\item Wait until nitrogen has evaporated.
+\item Grind the capitula with glass thingy.
+\item Add 5mL 80\% aceton.
+\item Keep overnight at 4°C.
+\item \sout{Centrifuge at max. speed for 10min.}
+\item Set baseline with two glass cuvets with 80\% acetone.
+\item Make another blank measurement to verify that the absorbance relative to the baseline is zero. If it isn't, maybe the glass is condensed.
+\item Transfer 1.5--2ml of supernatant into glass cuvet that was in the front slot. (Keep the cuvet in the back slot as is.)
+\item Measure absorbance at $\lambda=$ 663.2, 646.8 and 470nm.
+\end{enumerate}
+
+
+\subsubsection{Practice measurement according to Arne's protocol}
+
+\citet[tbl.~III, p.~366]{lichtenthaler1987} suggests measuring the absorbance at 665.4, 653.4 and 470nm when using a 80\% aceton solvent.
+
+<<>>=
+test_abs <- read.table( textConnection("
+ID      A663    A646    A470
+150     0.7246  0.7052  0.7693
+1703    0.6561  0.5438  0.4568
+1731    0.3465  0.2397  0.2474
+1682    0.5831  0.3872  0.3991
+1581    0.3933  0.2611  0.3099
+1705    0.3767  0.2312  0.2625
+"), header=TRUE)
+
+# Lichtenthaler (1987, p. 366, tbl. III)
+attach(test_abs)
+test_abs$C_a <- 12.25 * A663 - 2.79 * A646
+test_abs$C_b <- 21.50 * A646 - 5.10 * A663
+test_abs$C_ab <- 7.15 * A663 + 18.71 * A646
+detach(test_abs); attach(test_abs)
+test_abs$C_xc <- (1000 * A470 - 1.82 * C_a - 85.02 * C_b) / 198
+
+# And multiply with the amount of solvent (in the tube or in the cuvet?)
+# and divide by the weight of the capitula.
+@
+
+\fxnote{Multiply [chlorophyll a/b] with the amount of solvent in the tube or in the cuvet?}
+
+\subsubsection{Pre-treatment chlorophyll content}
+
+<<>>=
+abs <- read.table( textConnection("
+Repl    Cont    Site    Dabbed
+A       1       a       0.386
+A       1       b       0.219
+A       1       c       0.249
+A       2       a       0.223
+A       2       b       0.320
+A       2       c       0.390
+A       3       a       0.263   
+A       3       b       0.226
+A       3       c       0.198
+A       4       a       0.309
+A       4       b       0.308
+A       4       c       0.429
+A       5       a       0.513
+A       5       b       0.268
+A       5       c       0.343
+A       6       a       0.221
+A       6       b       0.231
+A       6       c       0.196
+A       7       a       0.262
+A       7       b       0.208
+A       7       c       0.262
+A       8       a       0.356
+A       8       b       0.253
+A       8       c       0.276
+B       1       a       0.185
+B       1       b       0.244
+B       1       c       0.324
+B       2       a       0.448
+B       2       b       0.287
+B       2       c       0.282
+B       3       a       0.252
+B       3       b       0.257
+B       3       c       0.211
+B       4       a       0.239
+B       4       b       0.211
+B       4       c       0.310
+B       5       a       0.249
+B       5       b       0.264
+B       5       c       0.237
+B       6       a       0.286
+B       6       b       0.311
+B       6       c       0.322
+B       7       a       0.283
+B       7       b       0.362
+B       7       c       0.334
+B       8       a       0.361
+B       8       b       0.337
+B       8       c       0.260
+C       1       a       0.367
+C       1       b       0.204
+C       1       c       0.262
+C       2       a       0.267
+C       2       b       0.208
+C       2       c       0.267
+C       3       a       0.204
+C       3       b       0.220
+C       3       c       0.221
+C       4       a       0.220
+C       4       b       0.246
+C       4       c       0.249
+C       5       a       0.279
+C       5       b       0.217
+C       5       c       0.181
+C       6       a       0.209
+C       6       b       0.204
+C       6       c       0.223
+C       7       a       0.260
+C       7       b       0.261
+C       7       c       0.204
+C       8       a       0.508
+C       8       b       0.280
+C       8       c       0.255
+"), header=TRUE)
+@
+
+\subsection{Chlorophyll fluorescence}
+  
+For the 2009 chlorophyll fluorescence measurements (and again in 2014), a Walz Imaging PAM Chlorophyll spectrofluorometer (model IMAG-CM, S/N IKEB0209) was used.
+
+In 2009, a grid (cut out from the plastic plate in a pipet point box) was placed in the spectrofluorometer's slide holder so that four capitula could be inserted into the grid's holes. The four capitula were randomly picked from sample site 1 in each container \citep[p.~17, fig.~18]{lanting2010}.
+
+The program Lanting used: 1 measurement at PAR=0, followed,
+after an interval of 42s, by 19 measurements at PAR=298,
+between each of which an interval of 30s was maintained.
+
+According to Lanting's light curve, an actinic light level of 12 was used \citep[app.~3]{lanting2010}. (Actinic light is light at a wavelength capable of supporting photosynthesis.)
+
+Three fluorescence quenching parameters were calculated, two of which ($\Phi$ and $F_v / F_m$) are photochemical quenching parameters and one of which () is a non-photochemical quenching parameter.
+\fxnote{Which non-photochemical quenching parameter was calculated?}
+
+\textbf{Quantum yield of PSII} (photosystem two) \citep{genty1989} is a photochemical quenching parameter that measures the proportion of absorbed light that is used in photochemistry:
+  
+$$\Phi_{PSII} = (F'_m - F_t) / F'_m$$
+
+$\Phi_{PSII}$ is calculated as the maximum fluorescence ($F_m$) after actinic light habituation ($F'_m$) minus the amount of fluorescence during actinic light levels($F_t$), divided by $F'_m$. The value for $\Phi_{PSII}$ decreases as the gap between $F'_m$ and $F_t$ increases. In the strictly theoretical extreme case that $F_t=0$, where no fluorescence is measured during normal actinic light exposure (because all light is either used in photochemistry or converted to heat), the value of $\Phi_{PSII}$ would be 1, whereas at the other extreme where fluorescence during normal (actinic) light exposure $F_t=F'_m$ (if all the light is reflected as fluorescence), $\Phi_{PSII}=0$. $\Phi_{PSII}$ is thus a measure of the rate of linear electron transport in PSII's photochemistry \citep{maxwell2000}.
+
+The second fluorescence quenching parameter is $F_v/F_m$, the \textbf{intrinsic (or maximum) efficiency of PSII}, which measures the quantum efficiency if all PSII were open (in the absence of fluorescence quenching) \citep{maxwell2000}.
+
+$$F_v / F_m = (F_m - F_o) / F_m = \Phi_{PSII} / qP$$
+
+$F_v/F_m$ can be calculated from the quantum yield of PSII ($\Phi_{PSII}$) and a third fluorescence quenching parameter: the `photochemical quenching' parameter $qP$, which gives an indication of the proportion of PSII reaction centers that are open \citep{maxwell2000}.
+ 
+$$qP = \frac{F'_m - F_t}{F'_m - F'_o}$$
+
+$F'_m - F_t$ is the maximum fluorescence after actinic light habituation minus the amount of fluorescence during actinic light levels. $F'_m - F'o$ substracts the zero-level fluorescence $F'_o$ (after actinic light habituation) from $F'_m$. Divided, these differences can be understood as the amount of fluorescence that is `lost' to photochemistry.
+
+\paragraph{Protocol for chlorophyll fluorescence measurements}
+
+\begin{enumerate}
+\item Start before dawn or create cover of darkness for \textbf{$\ge 5$min}. (A black cloth can be found on top of the cupboard in room 5173.0256) Darkness should be maintained until the end of the measurement so that (actinic) light levels can be controlled by the measuring equipment.
+\item Ensure working distance of \textbf{18.5cm} so that the capitula will be in focus. Each PAR-list applies to a certain measuring head at a certain distance, so PAR-values will be inaccurate at the inappropriate distance.
+\item Turn on fluorometer.
+\item Start \textbf{ImagingWin} application on controlling laptop.
+\item During startup, select \textbf{`MINI'} measuring head and \textbf{`Red'} color.
+\item Switch to ``live video'' to focus bring capitula into \textbd{focus}.
+\item Switch back to fluorescence mode to define \textbf{AOIs} (areas of interest).
+\item In \textit{Settings}:
+\begin{itemize}
+\item under \textit{Slow Induction}, set \textit{Delay (s)}=40, \textit{Clock (s)}=30, \textit{Duration (s)}=595 [Sure? Tweak this so that we get 20 entries.];
+\item under \textit{Meas. Light}, set \textit{Int.}=2, leave \textit{Freq.} as is [?];
+\item under \textit{Actinic Light}, set \textit{Int.}=9 [but this gives a PAR of 283 unlike Arne's PAR=298], \textit{Width (s)}=0. [What is this `Width' you speak of?]
+\end{itemize}
+\item Arne stored all parameters
+\end{enumerate}
+ 
+\subsubsection{Calibrating Walz Imaging PAM Chlorophyll Fluorometer}
+
+<<par_cal>>=
+# PAR = Photosynthetically Active Radiation
+par_vals <- read.table( textConnection("
+AL  Current     PAR_F   PAR_M
+0   0           1       0.2
+1   3           9       15
+2   4           20      28
+3   5           29      38
+4   7           40      55
+5   11          56      79
+6   14          75      90
+7   19          102     131
+8   25          133     168
+9   31          165     202
+10  38          204     248
+11  46          248     299
+12  55          297     360
+13  69          370     450
+14  84          455     549
+15  107         580     700
+16  134         725     885
+17  171         922     1135
+18  219         1175    1390
+19  274         1465    1655
+20  350         1855    2310
+"), header=TRUE)
+
+attach(par_vals)
+
+m1 <- lm(PAR_F~Current, data=par_vals)
+m2 <- lm(PAR_F~PAR_M, data=par_vals)
+m3 <- lm(PAR_M~Current, data=par_vals)
+
+# Calculate adjusted PAR values for AL=18-20 (Current=219)
+# (Correct PAR_F values relative to Marten's measurements)
+PAR_F_by_M <- summary(m2)$coefficients[2,1]
+par_vals$PAR_F_corr <- PAR_M * PAR_F_by_M
+par_vals$PAR_diff <- par_vals$PAR_F_corr - PAR_F
+detach(par_vals); attach(par_vals)
+m4 <- lm(PAR_F_corr~Current, data=par_vals)
+
+#par(mfrow=c(1,2))
+
+plot(PAR_M~Current, pch=19, ylab="PAR")
+abline(m3, lty=1)
+points(PAR_F~Current, pch=20, col="red")
+abline(m1, lty=2, col="red")
+points(PAR_F_corr~Current, pch=1, col="green")
+
+plot(PAR_F~PAR_M, pch=20)
+abline(m2)
+
+par_vals
+@
+
+
+\section{Contacts}
+
+\paragraph{Ab Grootjans} is active as advisor to Natuurmonumenten.
+
+\paragraph{Arne Lanting} works as a biology teacher.
+
+\paragraph{Christian Fritz} is a postdoc at Radbout University.
+
+\paragraph{Nelly Eck} is an analist for the COCON group at the RuG.
+
+\paragraph{Wouter Patberg} works as an ecological advisory. 
+
+\listoffixmes
+
+\bibliographystyle{plainnat}
+\bibliography{rowan-sphagnum.bib}
+
+\end{document}
