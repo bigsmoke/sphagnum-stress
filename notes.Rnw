@@ -417,7 +417,11 @@ abs_okt04$Car_x_c <- with(abs_okt04, ((1000*A470)-(1.82*Chl_a)-(85.02*Chl_b)) / 
 
 attach(abs_okt04)
 
-plot(Chl_a ~ Cont)
+abs_m1 <- aov(Chl_a_over_b ~ Cont * Site, data=abs_okt04)
+abs_m2 <- aov(Chl_a ~ Cont * Site, data=abs_okt04)
+abs_m3 <- aov(Chl_b ~ Cont * Site, data=abs_okt04)
+abs_m4 <- aov(Chl_a_plus_b ~ Cont * Site, data=abs_okt04)
+plot(Chl_a_plus_b ~ Cont)
 @
 
 \subsection{Chlorophyll fluorescence}
