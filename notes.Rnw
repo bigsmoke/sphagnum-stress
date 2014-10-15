@@ -264,6 +264,25 @@ Every week, water was sampled from part a, b, and c in each container using soil
 
 Also sample the water in the barrels.
 
+<<>>=
+n_treatments <- 4
+n_replicates <- 2
+n_containers <- n_treatments * n_replicates
+n_controls <- n_replicates
+n_sites <-
+# Sample 3 sample sites in
+n_pots <- n_containers * 3 - n_controls * 2 + n_treatments 
+@
+
+\paragraph{Protocol for water sampling for cation determination:}
+
+\begin{itemize}
+\item Connect \textbf{seringes to rhizons} at each site = 3 per container, except for the controls (container 1 & 2), for which only site 1 is sampled.
+\item \textbf{Vacuum pull} the seringes and wait for them to fill with $\ge$ 20mL.
+\item Sample 20mL of solution from the \textbf{containers} (4) containing different treatments.
+\item Number 
+\end{itemize}
+
 \subsection{Cation determination}
 
 For the determination of intra and extra cellular cation concentrations, 4 [?] capitula were randomly selected from each part (a, b, c) in each container. 
